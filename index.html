@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Interactive Risk Assessment</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    body { font-family: system-ui, Arial; margin: 20px; }
+    .controls { display:flex; gap:20px; margin-top:20px; }
+    .control { display:flex; flex-direction:column; align-items:center; width:160px; }
+    .val { font-weight:600; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <h2>Interactive Bar Chart</h2>
+  <canvas id="barChart" width="700" height="300"></canvas>
+
+  <div class="controls">
+    <div class="control">
+      <label>Bar Height</label>
+      <input type="range" id="s1" min="0" max="100" value="50">
+      <div class="val" id="v1">50</div>
+    </div>
+    <div class="control">
+      <label>Bar Weight</label>
+      <input type="range" id="s2" min="0" max="100" value="50">
+      <div class="val" id="v2">50</div>
+    </div>
+    <div class="control">
+      <label>Age C</label>
+      <input type="range" id="s3" min="0" max="100" value="50">
+      <div class="val" id="v3">50</div>
+    </div>
+
+<script>
+const ctx = document.getElementById('barChart').getContext('2d');
+const data = {
+  labels: ['Height','Weight','Age'],
+  datasets: [{
+    label: 'Value',
+    data: [50,50,50,50],
+    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+    borderWidth: 1
+  }]
+};
+const cfg = {
+  type: 'bar',
+  data,
+  options: {
+    animation: { duration: 300 },
+    scales: { y: { beginAtZero: true, max: 100 } }
+  }
+};
+const chart = new Chart(ctx, cfg);
+
+// helper to wire slider -> chart
+function wire(idS, idV, idx) {
+  const s = document.getElementById(idS);
+  const v = document.getElementById(idV);
+  s.addEventListener('input', () => {
+    const val = Number(s.value);
+    v.textContent = val;
+    chart.data.datasets[0].data[idx] = val;
+    chart.update();
+  });
+}
+wire('s1','v1',0);
+wire('s2','v2',1);
+wire('s3','v3',2);
+</script>
+</body>
+</html>
