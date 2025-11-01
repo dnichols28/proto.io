@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Risk Assessment</title>
+  <title>Interactive Single-Y Line Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     body {
@@ -16,33 +16,27 @@
       align-items: center;
     }
 
-    /* Chart container ensures it scales */
+    h3 { margin-bottom: 1rem; }
+
     .chart-container {
       position: relative;
       width: 100%;
-      max-width: 400px; /* fits phones comfortably */
+      max-width: 420px;
+      height: 250px;
     }
 
     canvas {
       width: 100% !important;
-      height: auto !important;
+      height: 100% !important;
     }
 
-    /* Sliders arranged vertically */
     .controls {
       display: flex;
       flex-direction: column;
-      align-items: stretch;
       gap: 1rem;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       margin-top: 1.5rem;
-    }
-
-    .control {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
     }
 
     .control label {
@@ -52,7 +46,7 @@
 
     input[type="range"] {
       width: 100%;
-      accent-color: teal;
+      accent-color: #28a745;
     }
 
     .val {
@@ -61,13 +55,19 @@
       color: #444;
       margin-top: 0.2rem;
     }
+
+    .yvalue {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <h3>Interactive Risk Assessment</h3>
 
   <div class="chart-container">
-    <canvas id="barChart"></canvas>
+    <canvas id="lineChart"></canvas>
   </div>
 
   <div class="controls">
@@ -86,44 +86,70 @@
       <input type="range" id="s3" min="0" max="100" value="50">
       <div class="val" id="v3">50</div>
     </div>
+  </div>
 
+  <div class="yvalue">Risk Level: <span id="yVal">50</span></div>
 
 <script>
-const ctx = document.getElementById('barChart').getContext('2d');
+const ctx = document.getElementById('lineChart').getContext('2d');
+
+// initialize chart with one dataset
 const data = {
-  labels: ['Height','Weight','Age'],
+  labels: Array.from({length: 10}, (_, i) => i + 1), // x-axis from 1 to 10
   datasets: [{
-    label: 'Value',
-    data: [50,50,50],
-    backgroundColor: 'rgba(75, 192, 192, 0.7)',
-    borderWidth: 1
+    label: 'Combined Y Value',
+    data: Array(10).fill(50),
+    borderColor: '#28a745',
+    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+    borderWidth: 3,
+    tension: 0.3,
+    fill: true
   }]
 };
-const cfg = {
-  type: 'bar',
+
+const config = {
+  type: 'line',
   data,
   options: {
-    maintainAspectRatio: false,
     responsive: true,
+    maintainAspectRatio: false,
     scales: { y: { beginAtZero: true, max: 100 } },
-    plugins: { legend: { display: false } }
+    plugins: { legend: { display: false } },
+    animation: { duration: 250 }
   }
 };
-const chart = new Chart(ctx, cfg);
 
-function wire(idS, idV, idx) {
-  const s = document.getElementById(idS);
-  const v = document.getElementById(idV);
-  s.addEventListener('input', () => {
-    const val = Number(s.value);
-    v.textContent = val;
-    chart.data.datasets[0].data[idx] = val;
-    chart.update();
-  });
+const chart = new Chart(ctx, config);
+
+// Function to compute combined Y (average)
+function computeY() {
+  const s1 = Number(document.getElementById('s1').value);
+  const s2 = Number(document.getElementById('s2').value);
+  const s3 = Number(document.getElementById('s3').value);
+  const avg = (s1 + s2 + s3) / 3;
+  return avg;
 }
-wire('s1','v1',0);
-wire('s2','v2',1);
-wire('s3','v3',2);
+
+// Update chart whenever any slider changes
+function updateChart() {
+  const newY = computeY();
+  document.getElementById('yVal').textContent = newY.toFixed(1);
+
+  // update text values for sliders
+  ['1','2','3'].forEach(i => {
+    document.getElementById('v'+i).textContent =
+      document.getElementById('s'+i).value;
+  });
+
+  // update line to reflect new Y (flat line across all x)
+  chart.data.datasets[0].data = Array(10).fill(newY);
+  chart.update();
+}
+
+// Connect sliders
+['s1','s2','s3'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateChart);
+});
 </script>
 </body>
 </html>
