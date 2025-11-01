@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Single-Y Line Chart</title>
+  <title>Interactive Line Chart (Mobile Friendly)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     body {
@@ -22,7 +22,7 @@
       position: relative;
       width: 100%;
       max-width: 420px;
-      height: 250px;
+      height: 250px; /* keeps it readable on phones */
     }
 
     canvas {
@@ -33,10 +33,17 @@
     .controls {
       display: flex;
       flex-direction: column;
+      align-items: stretch;
       gap: 1rem;
       width: 100%;
       max-width: 420px;
-      margin-top: 1.5rem;
+      margin-top: 1.2rem;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
     }
 
     .control label {
@@ -46,7 +53,7 @@
 
     input[type="range"] {
       width: 100%;
-      accent-color: #bba53d;
+      accent-color: #007bff;
     }
 
     .val {
@@ -55,16 +62,10 @@
       color: #444;
       margin-top: 0.2rem;
     }
-
-    .yvalue {
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #333;
-    }
   </style>
 </head>
 <body>
-  <h3>Interactive Risk Assessment</h3>
+  <h3>Interactive Line Chart</h3>
 
   <div class="chart-container">
     <canvas id="lineChart"></canvas>
@@ -72,38 +73,41 @@
 
   <div class="controls">
     <div class="control">
-      <label>Height</label>
-      <input type="range" id="s1" min="0" max="100" value="50">
-      <div class="val" id="v1">50</div>
+      <label>Point A</label>
+      <input type="range" id="s1" min="0" max="100" value="25">
+      <div class="val" id="v1">25</div>
     </div>
     <div class="control">
-      <label>Weight</label>
+      <label>Point B</label>
       <input type="range" id="s2" min="0" max="100" value="50">
       <div class="val" id="v2">50</div>
     </div>
     <div class="control">
-      <label>Age</label>
-      <input type="range" id="s3" min="0" max="100" value="50">
-      <div class="val" id="v3">50</div>
+      <label>Point C</label>
+      <input type="range" id="s3" min="0" max="100" value="75">
+      <div class="val" id="v3">75</div>
+    </div>
+    <div class="control">
+      <label>Point D</label>
+      <input type="range" id="s4" min="0" max="100" value="100">
+      <div class="val" id="v4">100</div>
     </div>
   </div>
 
-  <div class="yvalue">Risk Level: <span id="yVal">50</span></div>
-
 <script>
 const ctx = document.getElementById('lineChart').getContext('2d');
-
-// initialize chart with one dataset
 const data = {
-  labels: Array.from({length: 10}, (_, i) => i + 1), // x-axis from 1 to 10
+  labels: ['A','B','C','D'],
   datasets: [{
-    label: 'Combined Y Value',
-    data: Array(10).fill(50),
-    borderColor: '#28a745',
-    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+    label: 'Y Value',
+    data: [25,50,75,100],
+    borderColor: '#007bff',
+    backgroundColor: 'rgba(0,123,255,0.2)',
     borderWidth: 3,
-    tension: 0.3,
-    fill: true
+    tension: 0.3,        // curved line
+    fill: true,          // fill under the line
+    pointRadius: 6,
+    pointHoverRadius: 8
   }]
 };
 
@@ -113,7 +117,10 @@ const config = {
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { y: { beginAtZero: true, max: 100 } },
+    scales: {
+      y: { beginAtZero: true, max: 100 },
+      x: { grid: { display: false } }
+    },
     plugins: { legend: { display: false } },
     animation: { duration: 250 }
   }
@@ -121,35 +128,22 @@ const config = {
 
 const chart = new Chart(ctx, config);
 
-// Function to compute combined Y (average)
-function computeY() {
-  const s1 = Number(document.getElementById('s1').value);
-  const s2 = Number(document.getElementById('s2').value);
-  const s3 = Number(document.getElementById('s3').value);
-  const avg = (s1 + s2 + s3) / 3;
-  return avg;
-}
-
-// Update chart whenever any slider changes
-function updateChart() {
-  const newY = computeY();
-  document.getElementById('yVal').textContent = newY.toFixed(1);
-
-  // update text values for sliders
-  ['1','2','3'].forEach(i => {
-    document.getElementById('v'+i).textContent =
-      document.getElementById('s'+i).value;
+// Connect sliders → update chart
+function connectSlider(sliderId, valueId, index) {
+  const slider = document.getElementById(sliderId);
+  const valueDisplay = document.getElementById(valueId);
+  slider.addEventListener('input', () => {
+    const val = Number(slider.value);
+    valueDisplay.textContent = val;
+    chart.data.datasets[0].data[index] = val;
+    chart.update();
   });
-
-  // update line to reflect new Y (flat line across all x)
-  chart.data.datasets[0].data = Array(10).fill(newY);
-  chart.update();
 }
 
-// Connect sliders
-['s1','s2','s3'].forEach(id => {
-  document.getElementById(id).addEventListener('input', updateChart);
-});
+connectSlider('s1', 'v1', 0);
+connectSlider('s2', 'v2', 1);
+connectSlider('s3', 'v3', 2);
+connectSlider('s4', 'v4', 3);
 </script>
 </body>
 </html>
