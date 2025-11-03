@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Line Chart (Mobile Friendly)</title>
+  <title>Interactive Risk Assessment</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     body {
@@ -65,7 +65,7 @@
   </style>
 </head>
 <body>
-  <h3>Interactive Line Chart</h3>
+  <h3>Interactive Risk Assessment</h3>
 
   <div class="chart-container">
     <canvas id="lineChart"></canvas>
@@ -73,36 +73,30 @@
 
   <div class="controls">
     <div class="control">
-      <label>Point A</label>
+      <label>Height (cm) </label>
       <input type="range" id="s1" min="0" max="100" value="25">
       <div class="val" id="v1">25</div>
     </div>
     <div class="control">
-      <label>Point B</label>
+      <label>Weight</label>
       <input type="range" id="s2" min="0" max="100" value="50">
       <div class="val" id="v2">50</div>
     </div>
     <div class="control">
-      <label>Point C</label>
+      <label>Age</label>
       <input type="range" id="s3" min="0" max="100" value="75">
       <div class="val" id="v3">75</div>
     </div>
-    <div class="control">
-      <label>Point D</label>
-      <input type="range" id="s4" min="0" max="100" value="100">
-      <div class="val" id="v4">100</div>
-    </div>
-  </div>
-
+    
 <script>
 const ctx = document.getElementById('lineChart').getContext('2d');
 const data = {
-  labels: ['A','B','C','D'],
+  labels: ['Height','Weight','Age'],
   datasets: [{
     label: 'Y Value',
-    data: [25,50,75,100],
-    borderColor: '#007bff',
-    backgroundColor: 'rgba(0,123,255,0.2)',
+    data: [180,300,75],
+    borderColor: '#bba53d',
+    backgroundColor: 'rgba(187, 165, 61, 0.2)',
     borderWidth: 3,
     tension: 0.3,        // curved line
     fill: true,          // fill under the line
@@ -143,7 +137,6 @@ function connectSlider(sliderId, valueId, index) {
 connectSlider('s1', 'v1', 0);
 connectSlider('s2', 'v2', 1);
 connectSlider('s3', 'v3', 2);
-connectSlider('s4', 'v4', 3);
 </script>
 </body>
 </html>
